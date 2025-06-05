@@ -1,0 +1,42 @@
+<h2>Welcome, {{ username }}!</h2>
+
+<div>
+  <input type="text" placeholder="Search projects..." [(ngModel)]="searchTerm" />
+</div>
+
+<div *ngIf="filteredProjects.length; else noProjects">
+  <ul>
+    <li *ngFor="let project of filteredProjects">
+      <strong>{{ project.name }}</strong> - {{ project.description }}
+    </li>
+  </ul>
+</div>
+<ng-template #noProjects>
+  <p>No projects created yet.</p>
+</ng-template>
+
+<button (click)="toggleCreate()">Create New Project</button>
+
+<div *ngIf="showCreateForm">
+  <input type="text" placeholder="Project Name" [(ngModel)]="newProject.name" />
+  <input type="text" placeholder="Project Description" [(ngModel)]="newProject.description" />
+  <select [(ngModel)]="newProject.type">
+    <option value="individual">Individual</option>
+    <option value="team">Team</option>
+  </select>
+
+  <div *ngIf="newProject.type === 'team'">
+    <label>Number of Team Members:</label>
+    <select [(ngModel)]="newProject.teamSize">
+      <option *ngFor="let n of [1,2,3,4,5,6,7,8,9,10]" [value]="n">{{ n }}</option>
+    </select>
+
+    <div *ngFor="let i of [].constructor(newProject.teamSize); let idx = index">
+      <input type="email" placeholder="Team Member Email" [(ngModel)]="teamEmails[idx]" />
+    </div>
+
+    <button (click)="sendInvites()">Send Invite via Email</button>
+  </div>
+
+  <button (click)="createProject()">Submit</button>
+</div>
