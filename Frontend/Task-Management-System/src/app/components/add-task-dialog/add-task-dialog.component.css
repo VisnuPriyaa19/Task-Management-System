@@ -1,0 +1,95 @@
+:host {
+display: block;
+padding: 24px;
+background-color: #e0f7fa; /* Light cyan */
+border-radius: 12px;
+min-width: 500px;
+max-height: 100%;
+box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+h2 {
+margin-bottom: 24px;
+font-size: 24px;
+color: #006064;
+font-weight: 600;
+text-align: center;
+}
+
+/* Material form field customization */
+mat-form-field {
+display: block;
+width: 100%;
+margin-bottom: 20px;
+}
+
+mat-form-field.mat-form-field-appearance-fill .mat-form-field-flex {
+background-color: #ffffff;
+border-radius: 8px;
+border: 1px solid #b2ebf2;
+padding-left: 12px;
+}
+
+.mat-form-field.mat-focused .mat-form-field-flex {
+border: 2px solid #00acc1;
+}
+
+/* Input and textarea */
+input.mat-input-element,
+textarea.mat-input-element {
+background-color: transparent;
+font-size: 16px;
+color: #004d40;
+padding: 8px 0;
+}
+
+textarea {
+resize: vertical;
+min-height: 80px;
+}
+
+/* Select box */
+mat-select {
+background-color: transparent;
+color: #004d40;
+}
+
+mat-select:hover {
+background-color: #e0f2f1;
+}
+
+.mat-select-value {
+padding-left: 4px;
+}
+
+/* Datepicker toggle icon */
+.mat-datepicker-toggle {
+color: #00796b;
+}
+
+/* Buttons */
+.actions {
+display: flex;
+justify-content: space-between;
+margin-top: 16px;
+}
+
+button {
+border-radius: 20px;
+font-weight: 500;
+padding: 8px 24px;
+}
+
+button[color="primary"] {
+background-color: #00acc1;
+color: #ffffff;
+transition: background-color 0.3s ease;
+}
+
+button[color="primary"]:hover {
+background-color: #00838f;
+}
+
+button:hover {
+opacity: 0.95;
+}

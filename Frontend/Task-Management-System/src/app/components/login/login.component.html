@@ -1,7 +1,48 @@
-<h2>Login</h2>
-<form (ngSubmit)="login()">
-  <input type="text" [(ngModel)]="uname" name="uname" placeholder="Username" required><br>
-  <input type="password" [(ngModel)]="password" name="password" placeholder="Password" required><br>
-  <button type="submit">Login</button>
-</form>
-<p>{{ msg }}</p>
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <h2>Welcome Back</h2>
+      <p>Sign in to your account</p>
+    </div>
+    
+    <form (ngSubmit)="login()" class="login-form">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input 
+          type="text" 
+          id="username"
+          [(ngModel)]="uname" 
+          name="uname" 
+          placeholder="Enter your username" 
+          required
+          class="form-input">
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input 
+          type="password" 
+          id="password"
+          [(ngModel)]="password" 
+          name="password" 
+          placeholder="Enter your password" 
+          required
+          class="form-input">
+      </div>
+      
+      <button type="submit" class="login-btn" [disabled]="!uname || !password">
+        Sign In
+      </button>
+    </form>
+    
+    <div class="register-link">
+      <p>Don't have an account? <a routerLink="/">Create one here</a></p>
+    </div>
+    
+    <div class="message" [class.error]="msg.includes('failed') || msg.includes('error')" 
+         [class.success]="msg.includes('success') || msg.includes('successful')" 
+         *ngIf="msg">
+      {{ msg }}
+    </div>
+  </div>
+</div>

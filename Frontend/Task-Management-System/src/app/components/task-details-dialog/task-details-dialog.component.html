@@ -1,0 +1,49 @@
+<mat-dialog-content class="dialog-content">
+
+  <h2 class="dialog-title">Task Details</h2>
+
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Task Name</mat-label>
+    <input matInput [(ngModel)]="task.taskName" [disabled]="!editable">
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Description</mat-label>
+    <textarea matInput rows="3" [(ngModel)]="task.taskDesc" [disabled]="!editable"></textarea>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Due Date</mat-label>
+    <input matInput [matDatepicker]="picker" [(ngModel)]="task.dueDate" [disabled]="!editable">
+    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker #picker></mat-datepicker>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Priority</mat-label>
+    <select matNativeControl [(ngModel)]="task.priority" [disabled]="!editable">
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Status</mat-label>
+    <select matNativeControl [(ngModel)]="task.status" [disabled]="!editable">
+      <option value="backlog">Backlog</option>
+      <option value="to-do">To-do</option>
+      <option value="in-progress">In-progress</option>
+      <option value="done">Done</option>
+    </select>
+  </mat-form-field>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-button (click)="close()">Close</button>
+  <button mat-button color="warn" (click)="deleteTask()">Delete</button>
+  <button mat-button color="primary" (click)="enableEdit()" *ngIf="!editable">Edit</button>
+  <button mat-raised-button color="accent" (click)="updateTask()" *ngIf="editable">Update</button>
+</mat-dialog-actions>
+

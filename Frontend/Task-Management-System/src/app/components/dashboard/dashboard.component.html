@@ -1,42 +1,76 @@
-<h2>Welcome, {{ username }}!</h2>
+<!-- Header -->
+<header class="dashboard-header">
+  <div class="welcome-msg">Welcome, {{ username }} 👋</div>
 
-<div>
-  <input type="text" placeholder="Search projects..." [(ngModel)]="searchTerm" />
-</div>
-
-<div *ngIf="filteredProjects.length; else noProjects">
-  <ul>
-    <li *ngFor="let project of filteredProjects">
-      <strong>{{ project.name }}</strong> - {{ project.description }}
-    </li>
-  </ul>
-</div>
-<ng-template #noProjects>
-  <p>No projects created yet.</p>
-</ng-template>
-
-<button (click)="toggleCreate()">Create New Project</button>
-
-<div *ngIf="showCreateForm">
-  <input type="text" placeholder="Project Name" [(ngModel)]="newProject.name" />
-  <input type="text" placeholder="Project Description" [(ngModel)]="newProject.description" />
-  <select [(ngModel)]="newProject.type">
-    <option value="individual">Individual</option>
-    <option value="team">Team</option>
-  </select>
-
-  <div *ngIf="newProject.type === 'team'">
-    <label>Number of Team Members:</label>
-    <select [(ngModel)]="newProject.teamSize">
-      <option *ngFor="let n of [1,2,3,4,5,6,7,8,9,10]" [value]="n">{{ n }}</option>
-    </select>
-
-    <div *ngFor="let i of [].constructor(newProject.teamSize); let idx = index">
-      <input type="email" placeholder="Team Member Email" [(ngModel)]="teamEmails[idx]" />
+  <div class="header-right">
+    <!-- Search -->
+    <div class="search-bar">
+      <input [(ngModel)]="searchTerm" class="search-input" placeholder="Search projects..." />
     </div>
 
-    <button (click)="sendInvites()">Send Invite via Email</button>
+    <!-- Profile -->
+    <div class="profile-container" (click)="toggleProfileMenu($event)">
+      <mat-icon class="profile-icon">account_circle</mat-icon>
+      <div *ngIf="isProfileMenuOpen" class="profile-dropdown">
+        <div class="profile-option profile-name">{{ username }}</div>
+        <div class="profile-option logout" (click)="logout()">Logout</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Dashboard -->
+<div class="dashboard">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <button mat-raised-button color="primary" class="new-project-btn" (click)="openCreateDialog()">
+      New Project
+    </button>
   </div>
 
-  <button (click)="createProject()">Submit</button>
+  <!-- Show message if no projects -->
+  <div *ngIf="getFilteredProjects().length === 0" class="no-projects-msg">
+    No projects found. Click <strong>"New Project"</strong> to get started!
+  </div>
+
+  <!-- Project Grid -->
+  <div class="project-container" *ngIf="getFilteredProjects().length > 0">
+    <mat-card class="project-card" *ngFor="let project of getFilteredProjects()">
+      <!-- Card Header with Project Name and Due Date -->
+      <div class="card-header">
+        <h3 class="project-name">{{ project.projectName }}</h3>
+        <div [ngClass]="getDueDateClass(project.dueDate)" class="due-date">
+          <mat-icon class="date-icon">event</mat-icon>
+          <span class="date-text">{{ project.dueDate | date: 'MMM d, y' }}</span>
+        </div>
+      </div>
+
+      <!-- Card Body with Description -->
+      <div class="card-body">
+        <div class="project-description">
+          <p class="description-text">
+            {{ isExpanded[project._id] ? project.projectDesc : (project.projectDesc | slice:0:80) }}
+            <span *ngIf="project.projectDesc.length > 80" class="read-toggle" (click)="toggleReadMore(project._id)">
+              {{ isExpanded[project._id] ? ' Show less' : '...Show more' }}
+            </span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Card Footer with Actions -->
+      <div class="card-footer">
+        <div class="card-actions">
+          <button class="action-btn view-btn" matTooltip="View Project" (click)="onView(project._id)">
+            <mat-icon>visibility</mat-icon>
+          </button>
+          <button class="action-btn edit-btn" matTooltip="Edit Project" (click)="editProject(project)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button class="action-btn delete-btn" matTooltip="Delete Project" (click)="onDelete(project._id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </mat-card>
+  </div>
 </div>
