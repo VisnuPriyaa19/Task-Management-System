@@ -27,10 +27,7 @@ const TaskSchema = new mongoose.Schema({
     ref: 'Project',
     required: true,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  }
-});
+  
+},{ timestamps: true } );
 
 module.exports = mongoose.model('Task', TaskSchema);

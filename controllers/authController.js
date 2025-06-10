@@ -1,6 +1,8 @@
-const User = require('../models/User');
+const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');       //for hashing password
 const jwt = require('jsonwebtoken');      //creates token for new user login
+const { sendWelcomeEmail, sendOTPEmail } = require('../services/emailService');
+const { generateOTP, setOTP, verifyOTP } = require('../services/otpService');
 
 // REGISTER CONTROLLER - Handles user registration
 exports.register = async (req, res) => {
@@ -30,7 +32,9 @@ exports.register = async (req, res) => {
 
     await newUser.save();
 
-    res.status(201).json({ msg: 'User registered successfully' });
+    await sendWelcomeEmail(email, uname);
+
+    res.status(201).json({ msg: 'User registered successfully and welcome email sent' });
   } 
   catch (err) 
   {
@@ -62,9 +66,15 @@ exports.login = async (req, res) => {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '1h',
-    });
+    const token = jwt.sign(
+      {
+        userId: user._id,
+        uname: user.uname,
+        email: user.email
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
 
     //Send back a response with token and user details
     res.json({
@@ -80,5 +90,27 @@ exports.login = async (req, res) => {
   catch (err) {
     console.error('Login Error:', err.message);
     res.status(500).json({ msg: 'Server error during login' });
+  }
+};
+
+exports.sendOTP = async (req, res) => {
+  const { email } = req.body;
+  const otp = generateOTP();
+  setOTP(email, otp);
+  try {
+    await sendOTPEmail(email, otp);
+    res.status(200).json({ msg: 'OTP sent to email' });
+  } catch (err) {
+    res.status(500).json({ msg: 'Failed to send OTP' });
+  }
+};
+
+exports.verifyOTP = async (req, res) => {
+  const { email, otp } = req.body;
+  const isValid = verifyOTP(email, otp);
+  if (isValid) {
+    res.status(200).json({ msg: 'OTP verified' });
+  } else {
+    res.status(400).json({ msg: 'Invalid or expired OTP' });
   }
 };
