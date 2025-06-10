@@ -1,0 +1,54 @@
+<div class="container">
+
+<h2 class="project-title">{{ projectTitle }}</h2>
+
+<!-- Filter Controls -->
+<div class="filter-controls">
+  <mat-form-field appearance="fill">
+    <mat-label>Priority</mat-label>
+    <mat-select [(ngModel)]="selectedPriority">
+      <mat-option value="">All</mat-option>
+      <mat-option value="low">Low</mat-option>
+      <mat-option value="medium">Medium</mat-option>
+      <mat-option value="high">High</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Due Date</mat-label>
+    <input matInput [matDatepicker]="picker" [(ngModel)]="selectedDueDate" />
+    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker #picker></mat-datepicker>
+  </mat-form-field>
+
+  <button mat-raised-button color="primary" (click)="applyFilters()">Filter</button>
+  <button mat-raised-button color="warn" (click)="clearFilters()">Clear</button>
+</div>
+
+
+
+<div class="board">
+
+  <div class="column {{status}}"
+  
+       *ngFor="let status of statuses"
+       cdkDropList
+       [id]="status"
+       [cdkDropListData]="tasks[status]"
+       [cdkDropListConnectedTo]="dropListIds"
+       (cdkDropListDropped)="onDrop($event, status)">
+       
+    <h3>
+      {{ status | titlecase }}
+      <button (click)="openAddTaskDialog(status)">+</button>
+    </h3>
+
+    <div *ngFor="let task of tasks[status]" cdkDrag>
+      <app-task-card [task]="task" (taskClick)="openTaskDetails($event)" />
+    </div>
+  </div>
+</div>
+
+
+</div>
+

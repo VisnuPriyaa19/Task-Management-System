@@ -1,0 +1,97 @@
+/* Ensure full height layout with flexbox */
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Header styling */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 15px 50px;
+}
+
+/* Navigation menu */
+nav ul {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+nav ul li {
+  margin: 0 15px;
+}
+
+nav ul li a {
+  text-decoration: none;
+  color: #E07A5F;
+  font-weight: bold;
+}
+
+/* Main login container */
+.login-container {
+  background-color: #f2f2f2;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px 0;
+}
+
+/* Login card styles */
+.login-card {
+  background-color: #E07A5F;
+  color: white;
+  width: 400px;
+  padding: 30px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.login-card h2,
+.login-card p {
+  color: white;
+}
+
+/* Form field styles */
+.full-width {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.login-button {
+  margin-top: 10px;
+  background-color: white;
+  color: #E07A5F;
+  font-weight: bold;
+}
+
+.register-link {
+  margin-top: 15px;
+}
+
+/* Footer always sticks to bottom */
+footer {
+  background-color: #1e1e1e;
+  color: white;
+  text-align: center;
+  padding: 15px 0;
+  width: 100%;
+  margin-top: auto;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+}
+
+.footer-links a {
+  color: white;
+  text-decoration: none;
+}

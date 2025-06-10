@@ -1,68 +1,155 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog } from '@angular/material/dialog';
+import { ProjectService } from '../../services/projects/project.service';
+import { AuthService } from '../../services/auth/auth.service';
+import { ProjectDialogComponent } from '../project-dialog/project-dialog.component';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, FormsModule],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatTooltipModule
+  ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
-export class DashboardComponent implements OnInit{
-  username = ''; // retrieved from storage or service
-  userId = '';
+export class DashboardComponent implements OnInit {
   projects: any[] = [];
-  filteredProjects: any[] = [];
-  searchTerm = '';
-  showCreateForm = false;
-  newProject = {
-    name: '',
-    description: '',
-    type: 'individual',
-    teamSize: 0
-  };
-  teamEmails: string[] = [];
+  searchTerm: string = '';
+  userId: string = '';
+  username: string = '';
+  isProfileMenuOpen: boolean = false;
+  isExpanded: { [key: string]: boolean } = {};
 
-  constructor(private http: HttpClient) {}
 
-  ngOnInit() {
-    const userData = JSON.parse(localStorage.getItem('user') || '{}');
-    this.username = userData.uname;
-    this.userId = userData.id; //  This matches what backend sent
-    this.fetchProjects();
+  constructor(
+    private projectService: ProjectService,
+    private router: Router,
+    private dialog: MatDialog,
+    private authService: AuthService
+  ) {}
+
+  ngOnInit(): void {
+    const user = this.authService.getCurrentUser();
+    console.log(user);
+    
+    if (user?.id) {
+      this.userId = user.id;
+      this.username = user.name|| 'User';
+      this.fetchProjects();
+    } else {
+      console.warn('No logged in user.');
+      this.router.navigate(['/']); // Redirect to login
+    }
   }
 
-  fetchProjects() {
-    this.http.get<any[]>(`http://localhost:5000/api/projects/${this.userId}`)
-      .subscribe(projects => {
-        this.projects = projects;
-        this.filteredProjects = projects;
-      });
+  fetchProjects(): void {
+    this.projectService.getProjectsByUser(this.userId).subscribe({
+      next: (res) => (this.projects = res),
+      error: (err) => console.error('Error fetching projects:', err)
+    });
   }
 
-  toggleCreate() {
-    this.showCreateForm = !this.showCreateForm;
+  openCreateDialog(): void {
+    const dialogRef = this.dialog.open(ProjectDialogComponent, {
+      width: '400px',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        const newProject = {
+          ...result,
+          userId: this.userId
+        };
+        this.projectService.createProject(newProject).subscribe(() => {
+          this.fetchProjects();
+        });
+      }
+    });
   }
 
-  sendInvites() {
-    console.log('Inviting:', this.teamEmails);
-    // Call email service (optional for now, can be implemented later)
+  editProject(project: any): void {
+    const dialogRef = this.dialog.open(ProjectDialogComponent, {
+      width: '400px',
+      data: { project }
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.projectService.updateProject(project._id, result).subscribe(() => {
+          this.fetchProjects();
+        });
+      }
+    });
   }
 
-  createProject() {
-    const payload = {
-      ...this.newProject,
-      teamMembers: this.teamEmails,
-      owner: this.userId
-    };
-    this.http.post('http://localhost:5000/api/projects/create', payload)
-      .subscribe(() => {
-        alert('Project created!');
+  onDelete(projectId: string): void {
+    if (confirm('Are you sure you want to delete this project?')) {
+      this.projectService.deleteProject(projectId).subscribe(() => {
         this.fetchProjects();
-        this.showCreateForm = false;
-        this.newProject = { name: '', description: '', type: 'individual', teamSize: 0 };
-        this.teamEmails = [];
       });
+    }
+  }
+
+  getFilteredProjects(): any[] {
+    if (!this.searchTerm) return this.projects;
+    return this.projects.filter((project) =>
+      project.projectName.toLowerCase().includes(this.searchTerm.toLowerCase())
+    );
+  }
+
+  getDueDateClass(dueDateStr: string): string {
+    const today = new Date();
+    const dueDate = new Date(dueDateStr);
+    const diffInDays = Math.floor((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffInDays < 0) return 'due-overdue';
+    else if (diffInDays <= 3) return 'due-soon';
+    else return 'due-later';
+  }
+
+  onView(projectId: string): void {
+    console.log(`Navigating to Kanban for project ID: ${projectId}`);
+    this.router.navigate(['/projects', projectId]);
+  }
+
+  toggleProfileMenu(event: Event): void {
+    event.stopPropagation();
+    this.isProfileMenuOpen = !this.isProfileMenuOpen;
+  }
+
+  toggleReadMore(projectId: string): void {
+     this.isExpanded[projectId] = !this.isExpanded[projectId];
+  }
+
+  @HostListener('document:click', ['$event'])
+  closeProfileMenu(event: Event): void {
+    if (!(event.target as HTMLElement)?.closest('.profile-container')) {
+      this.isProfileMenuOpen = false;
+    }
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/']); // back to login
   }
 }
